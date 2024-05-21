@@ -4,6 +4,7 @@ on:
 
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   sonarcloud-SAST:
     name: SonarCloud
@@ -17,6 +18,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          
   trivy-SAST:
     name: trivy-sast
     runs-on: ubuntu-latest
@@ -41,11 +43,12 @@ jobs:
               echo '```'
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
-          fi      
+          fi
+
   trivy-containerscan:
     name: trivy-containerscan
     runs-on: ubuntu-latest
-    needs: [sonarcloud-SAST,trivy-SAST]
+    needs: [sonarcloud-SAST, trivy-SAST]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,8 +64,8 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'   
-          ouput: 'trivy.txt'   
+          severity: 'CRITICAL,HIGH'
+          output: 'trivy.txt'
 
       - name: Publish Trivy Output to Summary
         run: |
